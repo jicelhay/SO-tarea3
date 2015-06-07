@@ -1,0 +1,54 @@
+---------------------------------------------------------
+ IIC2333 - Ejemplo de Sockets
+---------------------------------------------------------
+
+ * INTRODUCCION
+
+En este archivo comprimido se encuentra un ejemplo
+funcional de socket en C, como una pequeña ayuda en
+la realización de la tarea 3.
+
+Si bien tendrán que implementar sólo un cliente,
+con esta aplicaciones podrán ver ambos lados de la 
+conexión.
+
+* INSTALACION
+
+Para poder ocupar el programa, basta con descomprimirlo
+en algun lugar de su directorio y posteriormente realizar
+
+$ make all
+
+Exiten otro comandos asociados a make que puede ocupar:
+
+make server - crea el ejecutable para el servidor
+make client - crea el ejecutable para el cliente
+make clean - elimina lo ejecutables
+
+
+* USO
+
+Para usar el ejemplo primero debe iniciar el servidor con
+
+$ ./simpleServer PORT
+
+donde PORT es un puerto elegido por usted, como recomendación
+ocupe un puerto mayor a 1024.
+
+Luego de esto, abra otra ventana en el directorio donde
+están los programas y ejecute el cliente de esta forma:
+
+$ ./simpleClient HOST PORT
+
+Donde HOST es la dirección del servidor y PORT el puerto
+de escucha. Si lo está realizando en el mismo computador
+ejecutelo como:
+
+$ ./simpleClient localhost PORT
+
+donde PORT es el puerto que escogió para el servidor.
+Vea los resultados en las consolas.
+
+Siéntase libre de utilizar este código para sus fines.
+
+
