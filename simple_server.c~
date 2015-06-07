@@ -163,7 +163,7 @@ int main(int argc, char *argv[])
 
 	if(permited){
 
-	n = write(client_socket_descriptor,"Se realizará petición HTTP",28);
+	printf("IP permitido, se realizara petición\n");
 
 	//ver si el archivo está en cache
 	char *fname = malloc (strlen ("cache\\") + strlen(IP) + strlen(".txt")+1);
@@ -171,18 +171,54 @@ int main(int argc, char *argv[])
 	strcat (fname,IP);
 	//strcat (fname, ".txt");
 
-	 FILE *file_cache;
-	file_cache= fopen(fname, "r");
-  	  if (file_cache)
+	 FILE *f;
+	f= fopen(fname, "r");
+  	  if (f)
    	 {
 		//en este caso existe, hay que leerlo y retornar el contenido
-       		 fclose(file);
+		printf ("Archivo está en cache\n");
+		
+		char * buffer = 0;
+		long length;
+
+		//guardamos todo el archivo en un string, lo enviamos.
+		  fseek (f, 0, SEEK_END);
+  		length = ftell (f);
+  		fseek (f, 0, SEEK_SET);
+  		buffer = malloc (length);
+ 		 if (buffer)
+ 		 {
+    			fread (buffer, 1, length, f);
+  		}
+  		fclose (f);
+
+	printf ("Texto a enviar:\n%s",buffer);
+		
+	n = write(client_socket_descriptor,buffer,length);
+
+	if (n < 0) 
+		error("ERROR writing to socket");
        		 
        	}
 	else{ 
-		//en este caso no existe, ---> INSERTAR REQUEST AQUI.
 		
-		printf( "no se encontro el archivo: %s hay que hacer http request",fname);
+		
+		printf( "no se encontro el archivo: %s hay que hacer http request\n",fname);
+
+		//en este caso no existe cache y tenemos que hacer request, ---> INSERTAR REQUEST AQUI.
+		
+		//creamos el archivo con fname y contenido de request.
+		FILE *f_request = fopen(fname, "wb");
+		if (f_request == NULL)
+		{
+    			error("ERROR creando archivo");
+		}	
+		
+		printf("se escribira en nuevo archivo\n");
+		 char *text = "Esto deberia ser el request";
+		fprintf(f_request, text);
+		n = write(client_socket_descriptor,text,strlen(text));
+
 	}
    
 	
@@ -191,7 +227,6 @@ int main(int argc, char *argv[])
 	n = write(client_socket_descriptor,"IP no fue aceptado",18);
 
 	}
-	// Enviamos confirmacion al cliente
 
 
 	// Si no se pudo escribir, enviamos un error
