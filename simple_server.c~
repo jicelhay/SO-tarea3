@@ -12,6 +12,7 @@
 #include <sys/types.h> 
 #include <sys/socket.h>
 #include <netinet/in.h>
+#include <arpa/inet.h>
 
 /**
  * Funcion para desplegar los errores
@@ -98,10 +99,25 @@ int main(int argc, char *argv[])
 	// Obtenemos el largo del mensaje
 	client_lenght = sizeof(client_addr);
 
+	
+
+	
+
 	// Aceptamos la conexion de algun cliente
 	client_socket_descriptor = accept(server_socket_descriptor, 
 				(struct sockaddr *) &client_addr, 
 				&client_lenght);
+
+
+	struct sockaddr_in* try = (struct sockaddr_in*)&client_addr;
+
+	//int ipAddr = try->sin_addr.s_addr;
+	//printf("%d",ipAddr);
+	
+	char* ip=  (char *) inet_ntoa(client_addr.sin_addr);
+	printf("IP de cliente: %s \n",ip);
+
+
 
 	// Si no se puede obtener el descriptor, enviamos un error
 	if (client_socket_descriptor < 0) 
@@ -154,7 +170,7 @@ int main(int argc, char *argv[])
 
        	aux_line=strtok(line,"\n");
 
-	if(strcmp(IP, aux_line) == 0){
+	if(strcmp(ip, aux_line) == 0){
 		permited=true;
 				   }
     }
@@ -224,6 +240,7 @@ int main(int argc, char *argv[])
 	
 	}
 	else{
+	printf("IP NO permitido\n");
 	n = write(client_socket_descriptor,"IP no fue aceptado",18);
 
 	}
