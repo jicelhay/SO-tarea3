@@ -1,0 +1,117 @@
+---------------------------------------------------------
+ IIC2333 - Tarea 3 - Juan Celhay - Jose Pablo Gonzales
+---------------------------------------------------------
+
+ * INTRODUCCION
+
+Para está tarea se utilizó como base los codigos de las clases:
+SimpleClient,SimpleServer y Http provistas por el ayudante.
+
+Además, se incorporarón las librerías: <stdbool.h> y <arpa/inet.h> para lograr las funcionalidades requeridas.
+El grueso del código se encuentra en la clase simple_server y aqui se agregaron las modificaciones.
+
+=============================================================================================================
+
+* MODO DE USO
+
+1) compilar el código de la carpeta con: $ make all
+
+2) iniciar el servidor proxy con el comando $ ./simpleServer PORT    --  EJ: $ ./simpleServer 1044
+
+3) iniciar el cliente con el comando $ ./simpleClient HOST PORT -- EJ $ ./simpleClient localhost 1044
+
+4) Enviar request al servidor proxy desde el cliente, ej: $Please enter the message: GET www.uc.cl
+
+5) Se muestra la respuesta de lo solicitado en la consola del cliente.
+
+
+==============================================================================================================
+
+* IMPLEMENTACION DE LA RECEPCIÓN DE SOLICITUDES Y COMUNICACIÓN CON EL CLIENTE
+
+-Primero, se debe asegurar que el request del usuario sea del tipo GET, esto se logra separando el primer substring
+de la request y verificando que sea GET. En código:
+
+-----------------------------------------------------------------
+char* get= strtok_r(buffer, " ",&get_aux)
+
+	if(strcmp(get, "GET") == 0){
+		printf("Request va a ser procesada\n");
+				   }
+-----------------------------------------------------------------
+
+-Luego, se debe verificar que el IP del "cliente" pertenezca a nuestra whitelist, oséa, esté escrito como linea en el archivo "ips"
+de la misma carpeta. Para esto, los pasos a seguir son: - obtener el IP del cliente -abrir el archivo "ips" y comparar linea por linea, si 
+se verifica la igualdad, entonces se modifica un boolean "permited" a true, con lo que el programa podrá seguir ejecutandose.
+En código:
+
+-----------------------------------------------------------------
+
+char* ip=  (char *) inet_ntoa(client_addr.sin_addr);
+
+file = fopen("ips", "r");
+if (file) {
+    	  while (fgets(line, sizeof(line), file)) {
+
+       	aux_line=strtok(line,"\n");
+
+	if(strcmp(ip, aux_line) == 0){
+		permited=true;
+				   }
+    }
+		  }
+
+-----------------------------------------------------------------
+
+-Finalmente, se verifica que el recurso solicitado esté en cache. Si está, entonces se envia el contenido al cliente. Si no está, se procede
+a realizar el request HTTP, se crea el archivo en cache y se envía información al cliente.
+
+-----------------------------------------------------------------------------
+//Buscar archivo cache
+
+	char *fname = malloc (strlen ("cache\\") + strlen(IP));
+    	char *fnameaux= IP;
+	strcpy (fname, "cache/");
+	strcat (fname,IP);
+
+//si es que está
+	 if (f)
+   	 {
+//guardamos todo el archivo en un string, lo enviamos.
+          	 fseek (f, 0, SEEK_END);
+  		length = ftell (f);
+  		fseek (f, 0, SEEK_SET);
+  		buffer = malloc (length);
+ 		 if (buffer)
+ 		 {
+    			fread (buffer, 1, length, f);
+  		}
+  		fclose (f);
+
+	//enviamos el contenido al cliente por socket
+		n = write(client_socket_descriptor,buffer,length);
+	}
+
+	//Si es que no está, creamos el archivo con fname y contenido de request.
+		FILE *f_request = fopen(fname, "wb");
+		if (f_request == NULL)
+		{
+    			error("ERROR creando archivo");
+		}	
+		
+		printf("se escribira en nuevo archivo\n");
+
+	//Output corresponde a la respuesta del request del servidor al recurso.
+		 char *text = output;
+		fprintf(f_request, text);
+		n = write(client_socket_descriptor,text,strlen(text));
+-----------------------------------------------------------------------------------
+==================================================================================
+
+* IMPLEMENTACIÓN DE LA GENERACIÓN DEL HTTP REQUEST
+
+==================================================================================
+
+* EXPERIMENTOS: OUTPUT DE SOLICITUDES NUEVAS, BUENAS, MAL FORMADAS Y REPETIDAS
+
+
